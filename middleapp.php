@@ -1,4 +1,5 @@
 <?php
+
 /** Комментарий техподдержки битрикса по коду признака услуга/товар:
  * В массиве за эту информацию отвечает переменная [type] у данного элемента это- 2,
  *  поскольку это услуга. У простых товаров это 1, а у товаров с предложениями это 3. */
@@ -6,6 +7,7 @@
 require_once('/var/bitrix24_include/crestBD.php');
 require_once('/var/bitrix24_include/common.php');
 require_once("/var/bitrix24_include/paykeeper.class.php");
+
 //file_put_contents(__DIR__."/log/debug.log", print_r($_POST,true), FILE_APPEND);
 //Проверяем на наличие необходимых параметров для платежа
 $get = array_change_key_case($_GET,CASE_LOWER);
@@ -233,7 +235,9 @@ if (isset($saleOrderGet["result"])) {
                 $pk_obj->more_then_one_item_index = $item_index;
         $line_sum = $price * $quantity;
 
-        $pk_obj->updateFiscalCart($pk_obj->getPaymentFormType(), $name, $price, $quantity, $line_sum, $taxes["tax"]);
+        $item_type = $pk_obj->get_type($item["type"]);
+
+        $pk_obj->updateFiscalCart($pk_obj->getPaymentFormType(), $name, $price, $quantity, $line_sum, $taxes["tax"],$item_type);
         $item_index++;
     }
 
@@ -256,7 +260,7 @@ if (isset($saleOrderGet["result"])) {
             }
             $delivery_taxes = $pk_obj->setTaxes($delivery_tax_rate);
             $pk_obj->setUseDelivery();
-            $pk_obj->updateFiscalCart($pk_obj->getPaymentFormType(), $delivery_name, $delivery_price, 1, $delivery_price, $delivery_taxes["tax"]);
+            $pk_obj->updateFiscalCart($pk_obj->getPaymentFormType(), $delivery_name, $delivery_price, 1, $delivery_price, $delivery_taxes["tax"], "service");
             $pk_obj->delivery_index = count($pk_obj->getFiscalCart()) - 1;
         }
     }
